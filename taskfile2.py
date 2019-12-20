@@ -103,6 +103,11 @@ def start_screen():
         clock.tick(FPS)
 
 
+levels = ['map.txt']
+cur_level = 0
+for param in sys.argv:
+    if param.endswith('.txt'):
+        levels.append(param)
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 start_screen()
@@ -125,8 +130,26 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    player_group.update()
-    clock.tick(FPS)
-    all_sprites.draw(screen)
-    player_group.draw(screen)
-    pygame.display.flip()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                cur_level += 1
+                if cur_level >= len(levels):
+                    cur_level = 0
+                try:
+                    all_sprites.empty()
+                    tiles_group.empty()
+                    player_group.empty()
+                    player, WIDTH, HEIGHT = generate_level(load_level(levels[cur_level]))
+                    WIDTH *= tile_width
+                    HEIGHT *= tile_height
+                    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                except Exception:
+                    print('Неверное название файлов')
+                    running = False
+                    break
+    else:
+        player_group.update()
+        clock.tick(FPS)
+        all_sprites.draw(screen)
+        player_group.draw(screen)
+        pygame.display.flip()
